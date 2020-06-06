@@ -46,7 +46,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         //屏幕固定为竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        /**
+        /*
          * 通知栏透明
          * SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
          */
@@ -153,6 +153,7 @@ public class MainActivity extends BaseActivity {
             Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.action_nav_course_to_initFragment);
         } else {
             if (luanchFragment == null) {
+
             } else if (luanchFragment.equals("UnsignedFragment")) {
                 Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.nav_unsigned);
             } else if (luanchFragment.equals("EditFragment")) {
