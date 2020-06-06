@@ -195,18 +195,12 @@ public class MainActivity extends BaseActivity {
     public static boolean isMIUI() {
         String manufacturer = Build.MANUFACTURER;
         //这个字符串可以自己定义,例如判断华为就填写huawei,魅族就填写meizu
-        if ("xiaomi".equalsIgnoreCase(manufacturer)) {
-            return true;
-        }
-        return false;
+        return "xiaomi".equalsIgnoreCase(manufacturer);
     }
 
     public static boolean isEMUI() {
         String manufacturer = Build.MANUFACTURER;
         //这个字符串可以自己定义,例如判断华为就填写huawei,魅族就填写meizu
-        if ("huawei".equalsIgnoreCase(manufacturer)) {
-            return true;
-        }
-        return false;
+        return "huawei".equalsIgnoreCase(manufacturer);
     }
 }
