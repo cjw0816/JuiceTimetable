@@ -62,6 +62,14 @@ public class MainActivity extends BaseActivity {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(Color.TRANSPARENT);
             window.setNavigationBarColor(Color.TRANSPARENT);
+        } else if (isEMUI() || isMIUI()) {
+            Window window = getWindow();
+            window.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setNavigationBarColor(Color.TRANSPARENT);
         } else {
             ImmersionBar.with(this)
                     .transparentBar()
@@ -182,5 +190,23 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         TodayWidget.triggerUpdate(getApplicationContext());
         super.onDestroy();
+    }
+
+    public static boolean isMIUI() {
+        String manufacturer = Build.MANUFACTURER;
+        //这个字符串可以自己定义,例如判断华为就填写huawei,魅族就填写meizu
+        if ("xiaomi".equalsIgnoreCase(manufacturer)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isEMUI() {
+        String manufacturer = Build.MANUFACTURER;
+        //这个字符串可以自己定义,例如判断华为就填写huawei,魅族就填写meizu
+        if ("huawei".equalsIgnoreCase(manufacturer)) {
+            return true;
+        }
+        return false;
     }
 }
