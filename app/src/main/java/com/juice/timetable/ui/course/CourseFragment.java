@@ -715,72 +715,74 @@ public class CourseFragment extends Fragment {
             @Override
             public void handleMessage(@NonNull Message msg) {
                 super.handleMessage(msg);
-                switch (msg.what) {
-                    case Constant.MSG_REFRESH:
-                        String msgStr = (String) msg.obj;
-                        if (!"ok".equals(msgStr)) {
-                            // 课表刷新有问题情况
-                            if ("您输入的教务网用户名或是密码有误".equals(msgStr)) {
-                                msgStr = "教务网密码已被更改，请在修改认证信息页面进行修改";
+                if (isAdded()) {
+                    switch (msg.what) {
+                        case Constant.MSG_REFRESH:
+                            String msgStr = (String) msg.obj;
+                            if (!"ok".equals(msgStr)) {
+                                // 课表刷新有问题情况
+                                if ("您输入的教务网用户名或是密码有误".equals(msgStr)) {
+                                    msgStr = "教务网密码已被更改，请在修改认证信息页面进行修改";
+                                }
+                                Toasty.custom(requireActivity(), msgStr, getResources().getDrawable(R.drawable.ic_error), getResources().getColor(R.color.red), getResources().getColor(R.color.white), LENGTH_LONG, true, true).show();
+                                Toasty.Config.reset();
+                                mSlRefresh.setRefreshing(false);
+                            } else {
+                                // 如果开启了彩虹模式 随机一个数
+                                if (Constant.RAINBOW_MODE_ENABLED) {
+                                    Random random = new Random();
+                                    // 随机一个1开始的数， 0代表关闭彩虹模式
+                                    int rainbowModeNum = random.nextInt(Utils.getColorCount() + 1);
+                                    Constant.RAINBOW_MODE_NUM = rainbowModeNum;
+                                    // 写入本地Preferences
+                                    PreferencesUtils.putInt(Constant.PREF_RAINBOW_MODE_NUM, rainbowModeNum);
+                                }
+                                updateCourse();
+                                Toasty.custom(requireActivity(), "课表刷新成功", getResources().getDrawable(R.drawable.course1), getResources().getColor(R.color.green), getResources().getColor(R.color.white), LENGTH_SHORT, true, true).show();
+                                Toasty.Config.reset();
+                                mSlRefresh.setRefreshing(false);
+
                             }
-                            Toasty.custom(requireActivity(), msgStr, getResources().getDrawable(R.drawable.ic_error), getResources().getColor(R.color.red), getResources().getColor(R.color.white), LENGTH_LONG, true, true).show();
-                            Toasty.Config.reset();
+                            break;
+                        case Constant.MSG_CHECK_IN_SUCCESS:
+                            String checkInTime = (String) msg.obj;
+                            //                        final String checkInStr = "今天 " + checkInTime + " 已签到";
+                            final String checkInStr = checkInTime + " 已签到";
+
+                            //                        mTvCheckIn.setBackgroundColor(0xFFe6e6e6);
+                            ObjectAnimator backgroundColor = ofObject(mTvCheckIn, "backgroundColor", new ArgbEvaluator(), 0xFFec6b6b, 0xFFe6e6e6);
+                            backgroundColor.setDuration(1000);
+                            backgroundColor.start();
+                            ObjectAnimator textColor = ofObject(mTvCheckIn, "textColor", new ArgbEvaluator(), 0xFFFFFFFF, 0xFF101010);
+                            textColor.setDuration(1000);
+                            textColor.start();
+
+                            mHandler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mTvCheckIn.setText(checkInStr);
+                                }
+                            }, 500);
+                            break;
+                        case Constant.STOP_REFRESH:
                             mSlRefresh.setRefreshing(false);
-                        } else {
-                            // 如果开启了彩虹模式 随机一个数
-                            if (Constant.RAINBOW_MODE_ENABLED) {
-                                Random random = new Random();
-                                // 随机一个1开始的数， 0代表关闭彩虹模式
-                                int rainbowModeNum = random.nextInt(Utils.getColorCount() + 1);
-                                Constant.RAINBOW_MODE_NUM = rainbowModeNum;
-                                // 写入本地Preferences
-                                PreferencesUtils.putInt(Constant.PREF_RAINBOW_MODE_NUM, rainbowModeNum);
+                            break;
+                        case Constant.MSG_CHECK_IN_FAIL:
+                            String checkInMsgStr = (String) msg.obj;
+                            // 获取签到信息失败
+                            LogUtils.getInstance().d("获取签到信息失败 开始提示Toasty");
+                            // 修改通知栏文字
+                            mTvCheckIn.setText("获取签到信息失败");
+
+                            if ("您输入的请假系统用户名或是密码有误".equals(checkInMsgStr)) {
+                                checkInMsgStr = "请假系统密码已被更改，请在修改认证信息页面进行修改";
                             }
-                            updateCourse();
-                            Toasty.custom(requireActivity(), "课表刷新成功", getResources().getDrawable(R.drawable.course1), getResources().getColor(R.color.green), getResources().getColor(R.color.white), LENGTH_SHORT, true, true).show();
-                            Toasty.Config.reset();
-                            mSlRefresh.setRefreshing(false);
 
-                        }
-                        break;
-                    case Constant.MSG_CHECK_IN_SUCCESS:
-                        String checkInTime = (String) msg.obj;
-//                        final String checkInStr = "今天 " + checkInTime + " 已签到";
-                        final String checkInStr = checkInTime + " 已签到";
-
-//                        mTvCheckIn.setBackgroundColor(0xFFe6e6e6);
-                        ObjectAnimator backgroundColor = ofObject(mTvCheckIn, "backgroundColor", new ArgbEvaluator(), 0xFFec6b6b, 0xFFe6e6e6);
-                        backgroundColor.setDuration(1000);
-                        backgroundColor.start();
-                        ObjectAnimator textColor = ofObject(mTvCheckIn, "textColor", new ArgbEvaluator(), 0xFFFFFFFF, 0xFF101010);
-                        textColor.setDuration(1000);
-                        textColor.start();
-
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                mTvCheckIn.setText(checkInStr);
-                            }
-                        }, 500);
-                        break;
-                    case Constant.STOP_REFRESH:
-                        mSlRefresh.setRefreshing(false);
-                        break;
-                    case Constant.MSG_CHECK_IN_FAIL:
-                        String checkInMsgStr = (String) msg.obj;
-                        // 获取签到信息失败
-                        LogUtils.getInstance().d("获取签到信息失败 开始提示Toasty");
-                        // 修改通知栏文字
-                        mTvCheckIn.setText("获取签到信息失败");
-
-                        if ("您输入的请假系统用户名或是密码有误".equals(checkInMsgStr)) {
-                            checkInMsgStr = "请假系统密码已被更改，请在修改认证信息页面进行修改";
-                        }
-
-                        Toasty.custom(requireActivity(), checkInMsgStr, getResources().getDrawable(R.drawable.ic_error), getResources().getColor(R.color.red), getResources().getColor(R.color.white), LENGTH_LONG, true, true).show();
-                        break;
+                            Toasty.custom(requireActivity(), checkInMsgStr, getResources().getDrawable(R.drawable.ic_error), getResources().getColor(R.color.red), getResources().getColor(R.color.white), LENGTH_LONG, true, true).show();
+                            break;
 
 
+                    }
                 }
 
             }
