@@ -1,7 +1,9 @@
 package com.juice.timetable;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -40,7 +42,7 @@ public class MainActivity extends BaseActivity {
     private AppBarConfiguration mAppBarConfiguration;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    @SuppressLint({"SourceLockedOrientationActivity", "ShowToast"})
+    @SuppressLint({"SourceLockedOrientationActivity", "ShowToast", "CheckResult"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,13 +53,21 @@ public class MainActivity extends BaseActivity {
          * SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Window window = getWindow();
-            window.getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
-            window.setNavigationBarColor(Color.TRANSPARENT);
+            if (isDarkTheme(this)) {
+                ImmersionBar.with(this)
+                        .transparentBar()
+                        .navigationBarColor(R.color.transparent)
+                        .barColorTransform(R.color.colorPrimaryDark)
+                        .init();
+            } else {
+                Window window = getWindow();
+                window.getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                window.setStatusBarColor(Color.TRANSPARENT);
+                window.setNavigationBarColor(Color.TRANSPARENT);
+            }
         } else if (isEMUI() || isMIUI()) {
             Window window = getWindow();
             window.getDecorView().setSystemUiVisibility(
@@ -199,5 +209,10 @@ public class MainActivity extends BaseActivity {
         String manufacturer = Build.MANUFACTURER;
         //这个字符串可以自己定义,例如判断华为就填写huawei,魅族就填写meizu
         return "huawei".equalsIgnoreCase(manufacturer);
+    }
+
+    public boolean isDarkTheme(Context context) {
+        int flag = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return flag == Configuration.UI_MODE_NIGHT_YES;
     }
 }
